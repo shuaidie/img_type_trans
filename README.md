@@ -3,22 +3,20 @@
 
 
 
-    image = r'test.png'
-    s = ImageTools()
-    img =  Image.open(image)
-    img = s.image_to_base64(img)
-    # cv2.imshow(img)
-    # print(img)
-    print(type(img))
-    data0 = s.image_to_array(img)
+image = r'test.png'
+    
+s = ImageTools()
+img =  Image.open(image)
+    
+img = s.image_to_base64(img)
 
+data0 = s.image_to_array(img)
 
-    data = s.image_to_bytes(data0)
-    print(s.isBase64(data))
-    print(type(data))
-    data = s.image_to_base64(data)
+data = s.image_to_bytes(data0)
 
-    data1 = s.image_to_array(data)
+data = s.image_to_pillowobj(data)
 
-    if data0.any() == data1.any():
-        print('数据吻合')
+data1 = s.image_to_array(data)
+
+if data0.any() == data1.any():
+print('数据吻合')
