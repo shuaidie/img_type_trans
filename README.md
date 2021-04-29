@@ -6,6 +6,7 @@
 image = r'test.png'
     
 s = ImageTools()
+
 img =  Image.open(image)
     
 img = s.image_to_base64(img)
@@ -19,4 +20,5 @@ data = s.image_to_pillowobj(data)
 data1 = s.image_to_array(data)
 
 if data0.any() == data1.any():
+
 print('数据吻合')
