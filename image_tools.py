@@ -1,3 +1,4 @@
+import os
 import PIL
 import base64
 import io
@@ -7,10 +8,26 @@ import numpy
 
 
 
-class ImageTools(object):
+class ImageObj(object):
     '''
     图片工具类，用于处理图片转换成
     '''
+    def __init__(self, image):
+        if isinstance(image, str):
+            if os.path.isfile(image):
+                self.image = open(image, 'rb').read()
+            else:
+                raise TypeError('input obj err! please check!')
+        elif isinstance(image, (PIL.Image.Image)):
+            self.image = image
+        elif isinstance(image, (numpy.ndarray,)):
+            self.image = image
+        elif self.isBase64(image):
+            self.image = image
+        elif isinstance(image, (bytes,)):
+            self.image = image
+        else:
+            raise TypeError('input obj err! please check!')
 
     def __cv2_to_base64(self, image):
         return base64.b64encode(image.tobytes())
@@ -30,10 +47,7 @@ class ImageTools(object):
         return image
 
     def __pil_to_bytes(self, image):
-        img_byte = io.BytesIO()
-        image.save(img_byte, format='PNG')
-        image = img_byte.getvalue()
-        return image
+        return self.__pil_to_cv2(image).tobytes()
 
     def __cv2_to_bytes(self, image):
         return image.tobytes()
@@ -48,16 +62,16 @@ class ImageTools(object):
         return base64.b64encode(image)
 
     def __pil_to_base64(self, image):
-        img_byte = io.BytesIO()
-        image.save(img_byte, format='PNG')
-        image= img_byte.getvalue()
-        return base64.b64encode(image)
+        return base64.b64encode(self.__pil_to_cv2(image).tobytes())
 
 
 
     def isBase64(self, s):
         try:
-            return base64.b64encode(base64.b64decode(s)) == s
+            return (base64.b64encode(base64.b64decode(s,validate=True)) == s)
+            # if base64.b64encode(base64.b64decode(s)) == s:
+            #     return True
+            # return False
         except Exception:
             return False
 
@@ -65,102 +79,113 @@ class ImageTools(object):
         return Image.fromarray(self.__bytes_to_cv2(self.__base64_to_bytes(image)))
 
 
-    def image_to_base64(self, image):
+    def to_base64(self):
         """
         将image对象转换为base64对象
         :param image: 可以是numpy数组、pil图片对象、图片的base64对象、图片的bytes形式
         :return:base64对象
         """
-        if isinstance(image, (PIL.Image.Image)):
-            return self.__pil_to_base64(image)
-        elif isinstance(image, (numpy.ndarray,)):
-            return self.__cv2_to_base64(image)
-        elif self.isBase64(image):
-            return image
-        elif isinstance(image, (bytes,)):
-            return self.__bytes_to_base64(image)
-        else:
-            raise TypeError('input obj err! please check!')
+        if isinstance(self.image, (PIL.Image.Image)):
+            self.image = self.__pil_to_base64(self.image)
+        elif isinstance(self.image, (numpy.ndarray,)):
+            self.image = self.__cv2_to_base64(self.image)
+        elif self.isBase64(self.image):
+            ...
+        elif isinstance(self.image, (bytes,)):
+            self.image = self.__bytes_to_base64(self.image)
+        return self
 
-    def image_to_bytes(self, image):
+    def to_bytes(self):
         """
         将image对象转换为bytes对象
         :param image: 可以是numpy数组、pil图片对象、图片的base64对象、图片的bytes形式
         :return:PIl对象
         """
-        if isinstance(image, (numpy.ndarray,)):
-            return self.__cv2_to_bytes(image)
-        elif isinstance(image, (PIL.Image.Image)):
-            return self.__pil_to_bytes(image)
-        elif self.isBase64(image):
-            return self.__base64_to_bytes(image)
-        elif isinstance(image, (bytes,)):
-            return image
-        else:
-            raise TypeError('input obj err! please check!')
+        if isinstance(self.image, (numpy.ndarray,)):
+            self.image = self.__cv2_to_bytes(self.image)
+        elif isinstance(self.image, (PIL.Image.Image)):
+            self.image = self.__pil_to_bytes(self.image)
+        elif self.isBase64(self.image):
+            self.image = self.__base64_to_bytes(self.image)
+        elif isinstance(self.image, (bytes,)):
+            pass
+        return self
 
-    def image_to_array(self, image):
+    def to_array(self):
         """
         将image对象转换为cv对象（numpy数组）
         :param image: 可以是numpy数组、pil图片对象、图片的base64对象、图片的bytes形式
         :return:numpy数组
         """
-        if isinstance(image, (PIL.Image.Image)):
-            return self.__pil_to_cv2(image)
-        elif self.isBase64(image):
-            return self.__base64_to_cv2(image)
-        elif isinstance(image, (bytes,)):
-            return self.__bytes_to_cv2(image)
-        elif isinstance(image, (numpy.ndarray,)):
-            return image
-        else:
-            raise TypeError('input obj err! please check!')
+        if isinstance(self.image, (PIL.Image.Image)):
+            self.image = self.__pil_to_cv2(self.image)
+        elif self.isBase64(self.image):
+            self.image = self.__base64_to_cv2(self.image)
+        elif isinstance(self.image, (bytes,)):
+            self.image = self.__bytes_to_cv2(self.image)
+        elif isinstance(self.image, (numpy.ndarray,)):
+            pass
+        return self
 
-    def image_to_pillowobj(self,image):
+    def to_pillowobj(self):
         """
         将image对象转换为PIL对象
         :param image: 可以是numpy数组、pil图片对象、图片的base64对象、图片的bytes形式
         :return:PIL对象
         """
-        if self.isBase64(image):
-            return self.__base64_to_pil(image)
-        elif isinstance(image, (bytes,)):
-            return self.__bytes_to_cv2(image)
-        elif isinstance(image, (numpy.ndarray,)):
-            return self.__cv2_to_pil(image)
-        elif isinstance(image, (PIL.Image.Image)):
-            return image
-        else:
-            raise TypeError('input obj err! please check!')
-
-
-
+        if self.isBase64(self.image):
+            self.image =  self.__base64_to_pil(self.image)
+        elif isinstance(self.image, (bytes,)):
+            self.image = self.__bytes_to_cv2(self.image)
+        elif isinstance(self.image, (numpy.ndarray,)):
+            self.image = self.__cv2_to_pil(self.image)
+        elif isinstance(self.image, (PIL.Image.Image)):
+            pass
+        return self
 
 
 if __name__ == '__main__':
-    image = r'test.png'
-    s = ImageTools()
-    img =  Image.open(image)
-    img = s.image_to_base64(img)
-    # cv2.imshow(img)
-    # print(img)
-    print(type(img))
-    data0 = s.image_to_array(img)
+    image = r'./test.png'
+    img = ImageObj(image)
+    img0 = img.to_base64().image
+    img = img.to_bytes().to_array().to_pillowobj().to_array().to_pillowobj().to_bytes().to_pillowobj().to_base64().image
+    if img0 == img:
+        print('数据吻合')
 
+    image = r'./test.png'
+    image = cv2.imread(image)
+    img = ImageObj(image)
+    img0 = img.to_base64().image
+    img = img.to_bytes().to_array().to_pillowobj().to_array().to_pillowobj().to_bytes().to_pillowobj().to_base64().image
+    if img0 == img:
+        print('数据吻合')
 
-    data = s.image_to_bytes(data0)
-    print(s.isBase64(data))
-    print(type(data))
-    data = s.image_to_base64(data)
+    img = ImageObj(r'./test.png')
+    img0 = img.to_base64().image
+    img = img.to_bytes().to_array().to_pillowobj().to_array().to_pillowobj().to_bytes().to_pillowobj().to_base64().image
+    if img0 == img:
+        print('数据吻合')
 
-    data1 = s.image_to_array(data)
+    image = r'./test.png'
+    image = open(image, 'rb').read()
+    img = ImageObj(image)
+    img0 = img.to_base64().image
+    img = img.to_bytes().to_array().to_pillowobj().to_array().to_pillowobj().to_bytes().to_pillowobj().to_base64().image
+    if img0 == img:
+        print('数据吻合')
 
-    if data0.any() == data1.any():
+    image = r'./test.png'
+    image = base64.b64encode(open(image, 'rb').read())
+    img = ImageObj(image)
+    img0 = img.to_base64().image
+    img = img.to_bytes().to_array().to_pillowobj().to_array().to_pillowobj().to_bytes().to_pillowobj().to_base64().image
+    if img0 == img:
         print('数据吻合')
 
 
-    print(s.isBase64(data))
-    print(type(data))
+
+
+
 
 
 
