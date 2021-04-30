@@ -17,7 +17,7 @@ class ImageObj(object):
             if os.path.isfile(image):
                 self.image = open(image, 'rb').read()
             else:
-                raise TypeError('input obj err! please check!')
+                raise TypeError('No such path!')
         elif isinstance(image, (PIL.Image.Image)):
             self.image = image
         elif isinstance(image, (numpy.ndarray,)):
