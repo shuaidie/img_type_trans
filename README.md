@@ -2,7 +2,6 @@
 实现python的base64、PIL、array、bytes四种图片对象自由转换
 
 
-使用示例：
     image = r'./test.png'
     img = ImageObj(image)
     img0 = img.to_base64().image
