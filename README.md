@@ -2,23 +2,40 @@
 实现python的base64、PIL、array、bytes四种图片对象自由转换
 
 
+使用示例：
+    image = r'./test.png'
+    img = ImageObj(image)
+    img0 = img.to_base64().image
+    img = img.to_bytes().to_array().to_pillowobj().to_array().to_pillowobj().to_bytes().to_pillowobj().to_base64().image
+    if img0 == img:
+        print('数据吻合')
 
-image = r'test.png'
-    
-s = ImageTools()
+    image = r'./test.png'
+    image = cv2.imread(image)
+    img = ImageObj(image)
+    img0 = img.to_base64().image
+    img = img.to_bytes().to_array().to_pillowobj().to_array().to_pillowobj().to_bytes().to_pillowobj().to_base64().image
+    if img0 == img:
+        print('数据吻合')
 
-img =  Image.open(image)
-    
-img = s.image_to_base64(img)
+    img = ImageObj(r'./test.png')
+    img0 = img.to_base64().image
+    img = img.to_bytes().to_array().to_pillowobj().to_array().to_pillowobj().to_bytes().to_pillowobj().to_base64().image
+    if img0 == img:
+        print('数据吻合')
 
-data0 = s.image_to_array(img)
+    image = r'./test.png'
+    image = open(image, 'rb').read()
+    img = ImageObj(image)
+    img0 = img.to_base64().image
+    img = img.to_bytes().to_array().to_pillowobj().to_array().to_pillowobj().to_bytes().to_pillowobj().to_base64().image
+    if img0 == img:
+        print('数据吻合')
 
-data = s.image_to_bytes(data0)
-
-data = s.image_to_pillowobj(data)
-
-data1 = s.image_to_array(data)
-
-if data0.any() == data1.any():
-
-print('数据吻合')
+    image = r'./test.png'
+    image = base64.b64encode(open(image, 'rb').read())
+    img = ImageObj(image)
+    img0 = img.to_base64().image
+    img = img.to_bytes().to_array().to_pillowobj().to_array().to_pillowobj().to_bytes().to_pillowobj().to_base64().image
+    if img0 == img:
+        print('数据吻合')
