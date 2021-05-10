@@ -42,8 +42,7 @@ class ImageObj(object):
         return Image.fromarray(image)
 
     def __bytes_to_pil(self, image):
-        image_data = io.BytesIO(image)
-        image= Image.open(image_data)
+        image = self.__cv2_to_pil(self.__bytes_to_cv2(image))
         return image
 
     def __pil_to_bytes(self, image):
@@ -64,20 +63,14 @@ class ImageObj(object):
     def __pil_to_base64(self, image):
         return base64.b64encode(self.__pil_to_cv2(image).tobytes())
 
-
-
     def isBase64(self, s):
         try:
             return (base64.b64encode(base64.b64decode(s,validate=True)) == s)
-            # if base64.b64encode(base64.b64decode(s)) == s:
-            #     return True
-            # return False
         except Exception:
             return False
 
     def __base64_to_pil(self, image):
         return Image.fromarray(self.__bytes_to_cv2(self.__base64_to_bytes(image)))
-
 
     def to_base64(self):
         """
@@ -136,23 +129,30 @@ class ImageObj(object):
         if self.isBase64(self.image):
             self.image =  self.__base64_to_pil(self.image)
         elif isinstance(self.image, (bytes,)):
-            self.image = self.__bytes_to_cv2(self.image)
+            self.image = self.__bytes_to_pil(self.image)
         elif isinstance(self.image, (numpy.ndarray,)):
             self.image = self.__cv2_to_pil(self.image)
         elif isinstance(self.image, (PIL.Image.Image)):
             pass
         return self
 
+    def save(self, imagefile):
+        self.to_bytes()
+        with open(imagefile, 'wb') as f:
+            f.write(self.image)
+
+
 
 if __name__ == '__main__':
-    image = r'./test.png'
+
+    image = r'./test1.jpg'
     img = ImageObj(image)
     img0 = img.to_base64().image
     img = img.to_bytes().to_array().to_pillowobj().to_array().to_pillowobj().to_bytes().to_pillowobj().to_base64().image
     if img0 == img:
         print('数据吻合')
 
-    image = r'./test.png'
+    image = r'./test1.jpg'
     image = cv2.imread(image)
     img = ImageObj(image)
     img0 = img.to_base64().image
@@ -160,13 +160,13 @@ if __name__ == '__main__':
     if img0 == img:
         print('数据吻合')
 
-    img = ImageObj(r'./test.png')
+    img = ImageObj(r'./test1.jpg')
     img0 = img.to_base64().image
     img = img.to_bytes().to_array().to_pillowobj().to_array().to_pillowobj().to_bytes().to_pillowobj().to_base64().image
     if img0 == img:
         print('数据吻合')
 
-    image = r'./test.png'
+    image = r'./test1.jpg'
     image = open(image, 'rb').read()
     img = ImageObj(image)
     img0 = img.to_base64().image
@@ -174,13 +174,15 @@ if __name__ == '__main__':
     if img0 == img:
         print('数据吻合')
 
-    image = r'./test.png'
+    image = r'./test1.jpg'
     image = base64.b64encode(open(image, 'rb').read())
-    img = ImageObj(image)
-    img0 = img.to_base64().image
-    img = img.to_bytes().to_array().to_pillowobj().to_array().to_pillowobj().to_bytes().to_pillowobj().to_base64().image
+    img1 = ImageObj(image)
+    img0 = img1.to_base64().image
+    img = img1.to_bytes().to_array().to_pillowobj().to_array().to_pillowobj().to_bytes().to_pillowobj().to_base64().image
     if img0 == img:
         print('数据吻合')
+
+    img1.save('text.png')
 
 
 
